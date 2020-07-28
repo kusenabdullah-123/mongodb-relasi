@@ -1,0 +1,15 @@
+{
+  "name": "mongodb-relasi",
+  "version": "1.0.0",
+  "description": "belajar relasi mongodb",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "author": "M Kusen A",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.21"
+  }
+}
