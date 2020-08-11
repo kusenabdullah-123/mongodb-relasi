@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const Siswa = require("./model/siswa");
-const Kelas = require("./model/kelas");
+const Rank = require("./model/ranking");
 mongoose
   .connect("mongodb://root:root@127.0.0.1:27017/sekolah?authSource=admin", {
     useNewUrlParser: true,
@@ -14,53 +14,62 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-app.get("/insertall", (req, res) => {
-  const cls = new Kelas({
-    _id: new mongoose.Types.ObjectId(),
-    kelas: "x",
-    jurusan: "Ipa",
-  });
 
-  cls.save((err) => {
-    if (err) {
-      console.log(err);
-    }
-
-    const sis = new Siswa({
+app.get("/insertrank", async (req, res) => {
+  try {
+    const rank = new Rank({
       _id: new mongoose.Types.ObjectId(),
-      name: Math.random().toString(36).substr(2, 5),
-      age: 20,
-      kelas: cls._id,
+      min_nilai: 50,
+      max_nilai: 69,
+      rank: "medium",
     });
-
-    sis.save((err) => {
-      if (err) {
-        console.log(err);
-      }
-      res.json({ message: "success add" }).end();
-    });
-  });
+    const result = await rank.save();
+    res.json({ result }).end();
+  } catch (error) {
+    res.json({ error }).end();
+  }
 });
+app.get("/insertsiswa", async (req, res) => {
+  try {
+    const nilai = 12;
+    const ranked = await ranking();
+    let rank = ranked.filter(({ min_nilai, max_nilai, rank }) => {
+      return showrank(nilai, min_nilai, max_nilai, rank);
+    });
+    const siswa = new Siswa({
+      _id: mongoose.Types.ObjectId(),
+      Name: "asa",
+      Nilai: nilai,
+      Rank: rank[0].rank,
+    });
+    await siswa.save();
+    res.end();
+  } catch (error) {
+    console.log(error);
+  }
+});
+const ranking = async () => {
+  try {
+    const result = await Rank.find();
+    return result;
+  } catch (error) {
+    console.log(err);
+  }
+};
+const showrank = (nilai, min, max, rank) => {
+  if ((nilai >= min) & (nilai <= max)) {
+    return rank;
+  }
+};
 app.get("/", async (req, res) => {
   try {
-    const sis = await Siswa.find().populate("kelas", "jurusan");
-    sis.forEach((item) => {
-      console.log(item.kelas[0].jurusan);
-    });
+    const sis = await Siswa.find().populate("Rank");
     res.json({ sis }).end();
   } catch (error) {
     res.json({ error }).end();
   }
 });
-app.get("/:nama", async (req, res) => {
-  const { nama } = req.params;
-  try {
-    const one = await Siswa.findOne({ name: nama }).populate("kelas");
-    res.json({ one }).end();
-  } catch (error) {
-    res.json({ error }).end();
-  }
-});
+
 app.listen(5000, (req, res) => {
   console.log("http://localhost:5000");
 });

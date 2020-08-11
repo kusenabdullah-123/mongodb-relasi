@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 const siswaSchema = Schema(
   {
     _id: Schema.Types.ObjectId,
-    name: String,
-    age: Number,
-    kelas: [{ type: Schema.Types.ObjectId, ref: "Kelas" }],
+    Name: String,
+    Nilai: Number,
+    Rank: String,
   },
   { timestamps: true }
 );
